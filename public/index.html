@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC Live Communication</title>
+  <link rel="icon" href="./icons8-done-16.png" >
+</head>
+<body>
+  <h1>WebRTC Live Communication</h1>
+  <video id="localVideo" autoplay muted playsinline></video>
+  <video id="remoteVideo" autoplay playsinline style="border:1px solid black"></video>
+  <button id="connect">connect</button>
+  <button id="disconnect">disconnect</button>
+  <!-- <script>
+    const socket = io(); // Connect to the WebSocket server
+    const localVideo = document.getElementById("localVideo");
+    const remoteVideo = document.getElementById("remoteVideo");
+
+    let localStream;
+    let peerConnection;
+    const config = {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" }, // Use a public STUN server
+      ],
+    };
+
+    // Get webcam and microphone
+    async function startLocalStream() {
+      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      localVideo.srcObject = localStream;
+    }
+
+    // Handle incoming signaling data
+    socket.on("signal", async (data) => {
+      if (!peerConnection) createPeerConnection();
+
+      if (data.offer) {
+        await peerConnection.setRemoteDescription(data.offer);
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        socket.emit("signal", { answer });
+      }
+
+      if (data.answer) {
+        await peerConnection.setRemoteDescription(data.answer);
+      }
+
+      if (data.candidate) {
+        await peerConnection.addIceCandidate(data.candidate);
+      }
+    });
+
+    // Create the peer connection
+    function createPeerConnection() {
+      peerConnection = new RTCPeerConnection(config);
+
+      // Add local stream tracks to the connection
+      localStream.getTracks().forEach((track) => peerConnection.addTrack(track, localStream));
+
+      // Handle remote stream
+      peerConnection.ontrack = (event) => {
+        remoteVideo.srcObject = event.streams[0];
+      };
+
+      // ICE candidate handling
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit("signal", { candidate: event.candidate });
+        }
+      };
+    }
+
+    // Start connection and send an offer
+    async function startCall() {
+      createPeerConnection();
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      socket.emit("signal", { offer });
+    }
+
+    // Start the process
+    startLocalStream().then(() => {
+      socket.emit("ready");
+    });
+
+    // Start the call when ready
+    socket.on("ready", () => {
+      if (!peerConnection) startCall();
+    });
+  </script> -->
+  <!-- <script>
+    const socket = io();
+    const localVideo = document.getElementById("localVideo");
+    const remoteVideo = document.getElementById("remoteVideo");
+  
+    let localStream;
+    let peerConnection;
+    const config = {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+      ],
+    };
+  
+    async function startLocalStream() {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localVideo.srcObject = localStream;
+      } catch (error) {
+        console.error("Error accessing media devices:", error);
+        alert("Could not access camera or microphone.");
+      }
+    }
+  
+    function createPeerConnection() {
+      peerConnection = new RTCPeerConnection(config);
+  
+      localStream.getTracks().forEach((track) => peerConnection.addTrack(track, localStream));
+  
+      peerConnection.ontrack = (event) => {
+        if (!remoteVideo.srcObject) {
+          const remoteStream = new MediaStream();
+          remoteVideo.srcObject = remoteStream;
+        }
+        event.streams[0].getTracks().forEach((track) => {
+          remoteVideo.srcObject.addTrack(track);
+        });
+      };
+  
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit("signal", { candidate: event.candidate });
+        }
+      };
+    }
+  
+    socket.on("signal", async (data) => {
+      if (!peerConnection) createPeerConnection();
+  
+      try {
+        if (data.offer) {
+          await peerConnection.setRemoteDescription(data.offer);
+          const answer = await peerConnection.createAnswer();
+          await peerConnection.setLocalDescription(answer);
+          socket.emit("signal", { answer });
+        }
+  
+        if (data.answer) {
+          await peerConnection.setRemoteDescription(data.answer);
+        }
+  
+        if (data.candidate) {
+          await peerConnection.addIceCandidate(data.candidate);
+        }
+      } catch (error) {
+        console.error("Error handling signaling data:", error);
+      }
+    });
+  
+    async function startCall() {
+      try {
+        createPeerConnection();
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        socket.emit("signal", { offer });
+      } catch (error) {
+        console.error("Error starting call:", error);
+      }
+    }
+  
+    startLocalStream().then(() => {
+      socket.emit("ready");
+    });
+  
+    socket.on("ready", () => {
+      if (!peerConnection) startCall();
+    });
+  </script> -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+  
+  
+</body>
+</html>
